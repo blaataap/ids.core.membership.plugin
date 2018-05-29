@@ -11,6 +11,33 @@ namespace ids.core.membership.plugin
     /// <summary>Membership Password Encrypt / Hasher</summary>
     public class MembershipPasswordHasher : IMembershipPasswordHasher
     {
+
+
+        //Mojoportal password hasher - would be better to implement the interface but we only need these 2 methods:
+        public bool HashedSha512PasswordIsValid(string password, string passwordSalt, string providedPassword)
+        {
+            string sha512Hash = GetSHA512Hash(passwordSalt + providedPassword);
+
+            if (sha512Hash == password) { return true; }
+
+            return false;
+        }
+
+        private string GetSHA512Hash(string cleanText)
+        {
+            if (string.IsNullOrEmpty(cleanText)) { return string.Empty; }
+
+            using (SHA512CryptoServiceProvider hasher = new SHA512CryptoServiceProvider())
+            {
+                Byte[] clearBytes = new UnicodeEncoding().GetBytes(cleanText);
+                Byte[] hashedBytes = hasher.ComputeHash(clearBytes);
+
+                return BitConverter.ToString(hashedBytes);
+
+            }
+
+        }
+
         /// <summary>Encrypts a password using the given format and salt</summary>
         /// <param name="password">The password to encrypt / hash</param>
         /// <param name="passwordFormat">The format to use 0 = clear, 1 = encrypt, 2 = hash</param>

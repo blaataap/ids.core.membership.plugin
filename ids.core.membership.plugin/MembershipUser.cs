@@ -31,5 +31,7 @@ namespace ids.core.membership.plugin
 
         /// <summary>Password Changed</summary>
         public DateTime PasswordChanged { get; set; }
+
+        public string DisplayName { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using cloudscribe.Core.Identity;
 using cloudscribe.Core.Models;
+using cloudscribe.Core.Models.Identity;
 using cloudscribe.Core.Web.Components;
 using cloudscribe.Core.Web.ViewModels.SiteUser;
 using ids.core.membership.plugin.Interfaces;
@@ -19,6 +20,7 @@ namespace ids.cloudscribe.auth
             SiteUserManager<SiteUser> userManager,
             SignInManager<SiteUser> signInManager,
             IIdentityServerIntegration identityServerIntegration,
+            INewUserDisplayNameResolver inewUserDisplayNameResolver,
             ISocialAuthEmailVerfificationPolicy socialAuthEmailVerificationPolicy,
             IProcessAccountLoginRules loginRulesProcessor,
             IUserStore<SiteUser> userStore,
@@ -27,10 +29,11 @@ namespace ids.cloudscribe.auth
 
 
             ILogger<MembershipFallbackAccountService> logger
-            ) : base(userManager, signInManager, identityServerIntegration, socialAuthEmailVerificationPolicy, loginRulesProcessor)
+            ) : base(userManager, signInManager, identityServerIntegration, socialAuthEmailVerificationPolicy, loginRulesProcessor, inewUserDisplayNameResolver)
         {
             this.membershipService = membershipService;
             this.membershipClaimsService = membershipClaimsService;
+
 
             this.userStore = userStore;
             _log = logger;
@@ -66,6 +69,7 @@ namespace ids.cloudscribe.auth
                     {
                         SiteUser newIdentityUser = new SiteUser();
                         newIdentityUser.Email = user.Email;
+                        newIdentityUser.EmailConfirmed = user.IsApproved;
                         newIdentityUser.UserName = user.UserName;
                         newIdentityUser.Id = user.UserId;
                         newIdentityUser.LastPasswordChangeUtc = user.PasswordChanged;
@@ -74,25 +78,25 @@ namespace ids.cloudscribe.auth
                         newIdentityUser.AccountApproved = user.IsApproved;
                         newIdentityUser.AgreementAcceptedUtc = user.AccountCreated;
                         newIdentityUser.CreatedUtc = user.AccountCreated;
-                        newIdentityUser.SiteId = userManager.Site.Id;
-                        newIdentityUser.FirstName = "test";
-                        newIdentityUser.LastName = "test";
+                        newIdentityUser.SiteId = _userManager.Site.Id;
+                        newIdentityUser.FirstName = string.Empty;
+                        newIdentityUser.LastName = string.Empty;
                         newIdentityUser.LastLoginUtc = DateTime.UtcNow;
-                        newIdentityUser.DisplayName = user.UserName;
-                        newIdentityUser.AccountApproved = userManager.Site.RequireApprovalBeforeLogin ? false : true;
+                        newIdentityUser.DisplayName = user.DisplayName;
+                        newIdentityUser.AccountApproved = _userManager.Site.RequireApprovalBeforeLogin ? false : true;
 
 
                         //create user manualy 
-                        var result = await signInManager.UserManager.CreateAsync(newIdentityUser, model.Password);
+                        var result = await _signInManager.UserManager.CreateAsync(newIdentityUser, model.Password);
 
                         if (result.Succeeded)
                         {
                             template.User = newIdentityUser;
                             template.IsNewUserRegistration = true;
-                            await loginRulesProcessor.ProcessAccountLoginRules(template);
+                            await _loginRulesProcessor.ProcessAccountLoginRules(template);
                         }
                         //Login user 
-                        template.SignInResult = await signInManager.PasswordSignInAsync(
+                        template.SignInResult = await _signInManager.PasswordSignInAsync(
                            model.Email,
                            model.Password,
                            false,

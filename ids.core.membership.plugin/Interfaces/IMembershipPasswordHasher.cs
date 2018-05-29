@@ -6,6 +6,8 @@ namespace ids.core.membership.plugin.Interfaces
     /// <summary>Membership Password Encrypt / Hasher</summary>
     public interface IMembershipPasswordHasher
     {
+        bool HashedSha512PasswordIsValid(string password, string passwordSalt, string providedPassword);
+
         /// <summary>Encrypts a password using the given format and salt</summary>
         /// <param name="password">The password to encrypt / hash</param>
         /// <param name="passwordFormat">The format to use 0 = clear, 1 = encrypt, 2 = hash</param>

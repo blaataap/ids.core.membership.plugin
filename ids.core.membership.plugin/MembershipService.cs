@@ -66,7 +66,8 @@ namespace ids.core.membership.plugin
                 IsApproved = user.IsApproved,
                 AccountCreated = user.CreateDate,
                 LastActivity = user.LastActivityDate,
-                PasswordChanged = user.LastPasswordChangedDate
+                PasswordChanged = user.LastPasswordChangedDate,
+                DisplayName = user.DisplayName
             };
         }
 
@@ -82,10 +83,12 @@ namespace ids.core.membership.plugin
             if (userSecurity == null) return false;
 
             // Encrypt the password given using the same encryption data stored against the user
-            var encryptedPassword = membershipPasswordHasher.EncryptPassword(password, userSecurity.PasswordFormat, userSecurity.Salt);
+            //var encryptedPassword = membershipPasswordHasher.EncryptPassword(password, userSecurity.PasswordFormat, userSecurity.Salt);
 
             // The Encrypted password should match the password held in the datastore
-            var isPasswordCorrect = userSecurity.Password == encryptedPassword;
+            //var isPasswordCorrect = userSecurity.Password == encryptedPassword;
+
+            var isPasswordCorrect = membershipPasswordHasher.HashedSha512PasswordIsValid(userSecurity.Password, userSecurity.Salt, password);
 
             // Update our user with any failed password attempts, resets etc.
             if (!isPasswordCorrect ||

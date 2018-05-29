@@ -37,17 +37,18 @@ namespace ids.core.membership.plugin.DataAccess
                     .Map(reader => new Membership
                     {
                         UserId = id,
-                        UserName = reader.Get<string>("UserName"),
+                        UserName = reader.Get<string>("LoginName"),
                         Email = reader.Get<string>("Email"),
                         PasswordQuestion = reader.Get<string>("PasswordQuestion"),
-                        IsApproved = reader.Get<bool>("IsApproved"),
+                        IsApproved = reader.Get<bool>("ProfileApproved"),
                         IsLockedOut = reader.Get<bool>("IsLockedOut"),
                         Comment = reader.Get<string>("Comment"),
-                        CreateDate = reader.Get<DateTime>("CreateDate"),
+                        CreateDate = reader.Get<DateTime>("DateCreated"),
                         LastLoginDate = reader.Get<DateTime>("LastLoginDate"),
                         LastActivityDate = reader.Get<DateTime>("LastActivityDate"),
                         LastPasswordChangedDate = reader.Get<DateTime>("LastPasswordChangedDate"),
-                        LastLockoutDate = reader.Get<DateTime>("LastLockoutDate")
+                        LastLockoutDate = reader.Get<DateTime>("LastLockoutDate"),
+                        DisplayName = reader.Get<string>("Name")
                     })
             ).ConfigureAwait(false)).SingleOrDefault();
         }
@@ -64,18 +65,19 @@ namespace ids.core.membership.plugin.DataAccess
                 .Param("@UpdateLastActivity", true)
                 .Map(reader => new Membership
                 {
-                    UserId = reader.Get<Guid>("UserId"),
-                    UserName = username,
+                    UserId = reader.Get<Guid>("UserGuid"),
+                    UserName = reader.Get<string>("LoginName"),
                     Email = reader.Get<string>("Email"),
                     PasswordQuestion = reader.Get<string>("PasswordQuestion"),
-                    IsApproved = reader.Get<bool>("IsApproved"),
+                    IsApproved = reader.Get<bool>("ProfileApproved"),
                     IsLockedOut = reader.Get<bool>("IsLockedOut"),
                     Comment = reader.Get<string>("Comment"),
-                    CreateDate = reader.Get<DateTime>("CreateDate"),
+                    CreateDate = reader.Get<DateTime>("DateCreated"),
                     LastLoginDate = reader.Get<DateTime>("LastLoginDate"),
                     LastActivityDate = reader.Get<DateTime>("LastActivityDate"),
                     LastPasswordChangedDate = reader.Get<DateTime>("LastPasswordChangedDate"),
-                    LastLockoutDate = reader.Get<DateTime>("LastLockoutDate")
+                    LastLockoutDate = reader.Get<DateTime>("LastLockoutDate"),
+                    DisplayName = reader.Get<string>("Name")
                 })).ConfigureAwait(false)).SingleOrDefault();
         }
 
